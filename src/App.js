@@ -29,6 +29,7 @@ function getModalStyle() {
 }
 
 function App() {
+  //props is equal to variable declaration in TS file
   const classes = useStyles();
   const [modalStyle] = React.useState(getModalStyle);
   const [posts, setPosts] = useState([]);
@@ -39,8 +40,9 @@ function App() {
   const [user, setUser] = useState("");
   const [openSignIn, setOpenSignIn] = useState(false);
 
-
+  // useEffect use to run detect changes
   useEffect(() => {
+    //condition
     db.collection("posts").onSnapshot((snapshot) => {
       setPosts(
         snapshot.docs.map((doc) => ({
@@ -49,8 +51,12 @@ function App() {
         }))
       );
     });
-  }, [posts]);
+  }, 
+  //effect changes in variable 
+  [posts]);
 
+  
+  //signUp function
   const signUp = (event) => {
     event.preventDefault();
 
@@ -89,6 +95,8 @@ function App() {
     }
   }, [user, username]);
 
+
+//signIn function
   const signIn = (event) => {
     event.preventDefault();
 
@@ -172,6 +180,7 @@ function App() {
           src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
           alt=""
         ></img>
+        <div className="header__button">
         {user ? (
           <Button onClick={() => auth.signOut()}>Logout</Button>
         ):(
@@ -179,6 +188,7 @@ function App() {
             <Button onClick={() => setOpenSignIn(true)}>Log In</Button>
             <Button onClick={() => setOpen(true)}>Sign Up</Button>
           </div>)}
+        </div>
       </div>
 
       {posts.map(({ id, post }) => (

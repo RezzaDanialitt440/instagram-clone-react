@@ -5,6 +5,8 @@ import "./App.css";
 import Post from "./Post";
 import { db, auth } from "./firebase";
 import { Button, Input } from "@material-ui/core";
+import ImageUpload from "./ImageUpload";
+import InstagramEmbed from 'react-instagram-embed';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -41,71 +43,72 @@ function App() {
   const [openSignIn, setOpenSignIn] = useState(false);
 
   // useEffect use to run detect changes
-  useEffect(() => {
-    //condition
-    db.collection("posts").onSnapshot((snapshot) => {
-      setPosts(
-        snapshot.docs.map((doc) => ({
-          id: doc.id,
-          post: doc.data(),
-        }))
-      );
-    });
-  }, 
-  //effect changes in variable 
-  [posts]);
+  useEffect(
+    () => {
+      //condition
+      db.collection("posts")
+        .orderBy("timestamp", "desc")
+        .onSnapshot((snapshot) => {
+          setPosts(
+            snapshot.docs.map((doc) => ({
+              id: doc.id,
+              post: doc.data(),
+            }))
+          );
+        });
+    },
+    //effect changes in variable
+    [posts]
+  );
 
-  
   //signUp function
   const signUp = (event) => {
     event.preventDefault();
 
     auth
-    .createUserWithEmailAndPassword(email, password)
-    .then((authUser) => {
-      authUser.user.updateProfile({
-        displayName: username
+      .createUserWithEmailAndPassword(email, password)
+      .then((authUser) => {
+        authUser.user.updateProfile({
+          displayName: username,
+        });
       })
-    })
-    .catch((error) => alert(error.message))
+      .catch((error) => alert(error.message));
 
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   useEffect(() => {
-    const unsubscribe =  auth.onAuthStateChanged((authUser) => {
-      if(authUser){
-        setUser(authUser)
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
+      if (authUser) {
+        setUser(authUser);
         console.log(JSON.stringify(authUser));
 
-        if(authUser.displayName){
-
+        if (authUser.displayName) {
         } else {
           return authUser.updateProfile({
-            displayName: username
+            displayName: username,
           });
         }
       } else {
         setUser(null);
       }
-    })
+    });
 
     return () => {
       unsubscribe();
-    }
+    };
   }, [user, username]);
 
-
-//signIn function
+  //signIn function
   const signIn = (event) => {
     event.preventDefault();
 
     auth
-    .signInWithEmailAndPassword(email,password)
-    .catch((error) => alert(error.message))
+      .signInWithEmailAndPassword(email, password)
+      .catch((error) => alert(error.message));
 
     setOpenSignIn(false);
-  }
+  };
 
   return (
     <div className="App">
@@ -118,29 +121,31 @@ function App() {
                 src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt=""
               ></img>
-              </center>
-              <Input
-                type="text"
-                placeholder="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-              ></Input>
+            </center>
+            <Input
+              type="text"
+              placeholder="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            ></Input>
 
-              <Input
-                type="email"
-                placeholder="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              ></Input>
+            <Input
+              type="email"
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            ></Input>
 
-              <Input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              ></Input>
+            <Input
+              type="password"
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></Input>
 
-              <Button type="submit" onClick={signUp}>Sign Up</Button>
+            <Button type="submit" onClick={signUp}>
+              Sign Up
+            </Button>
           </form>
         </div>
       </Modal>
@@ -154,22 +159,24 @@ function App() {
                 src="https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png"
                 alt=""
               ></img>
-              </center>
-              <Input
-                type="email"
-                placeholder="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              ></Input>
+            </center>
+            <Input
+              type="email"
+              placeholder="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            ></Input>
 
-              <Input
-                type="password"
-                placeholder="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              ></Input>
+            <Input
+              type="password"
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></Input>
 
-              <Button type="submit" onClick={signIn}>Log In</Button>
+            <Button type="submit" onClick={signIn}>
+              Log In
+            </Button>
           </form>
         </div>
       </Modal>
@@ -181,24 +188,49 @@ function App() {
           alt=""
         ></img>
         <div className="header__button">
-        {user ? (
-          <Button onClick={() => auth.signOut()}>Logout</Button>
-        ):(
-          <div>
-            <Button onClick={() => setOpenSignIn(true)}>Log In</Button>
-            <Button onClick={() => setOpen(true)}>Sign Up</Button>
-          </div>)}
+          {user ? (
+            <Button onClick={() => auth.signOut()}>Logout</Button>
+          ) : (
+            <div>
+              <Button onClick={() => setOpenSignIn(true)}>Log In</Button>
+              <Button onClick={() => setOpen(true)}>Sign Up</Button>
+            </div>
+          )}
         </div>
       </div>
 
-      {posts.map(({ id, post }) => (
-        <Post
-          key={id}
-          username={post.username}
-          caption={post.caption}
-          imageUrl={post.imageUrl}
-        ></Post>
-      ))}
+      <div className="app__posts">
+        <div className="app__posts_left">
+          {posts.map(({ id, post }) => (
+            <Post
+              key={id}
+              username={post.username}
+              caption={post.caption}
+              imageUrl={post.imageUrl}
+            ></Post>
+          ))}
+        </div>
+        <div className="app__posts_right">
+          <InstagramEmbed
+            url="https://www.instagram.com/p/BZa9hjzHM2t/"
+            maxWidth={320}
+            hideCaption={false}
+            containerTagName="div"
+            protocol=""
+            injectScript
+            onLoading={() => {}}
+            onSuccess={() => {}}
+            onAfterRender={() => {}}
+            onFailure={() => {}}
+          />
+        </div>
+      </div>
+
+      {user?.displayName ? (
+        <ImageUpload username={user.displayName}></ImageUpload>
+      ) : (
+        <h3>Please Login to upload image</h3>
+      )}
     </div>
   );
 }

@@ -204,6 +204,8 @@ function App() {
           {posts.map(({ id, post }) => (
             <Post
               key={id}
+              postId={id}
+              user={user}
               username={post.username}
               caption={post.caption}
               imageUrl={post.imageUrl}
@@ -226,10 +228,8 @@ function App() {
         </div>
       </div>
 
-      {user?.displayName ? (
+      {user && (
         <ImageUpload username={user.displayName}></ImageUpload>
-      ) : (
-        <h3>Please Login to upload image</h3>
       )}
     </div>
   );

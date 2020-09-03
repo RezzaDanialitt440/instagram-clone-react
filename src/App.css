@@ -4,7 +4,7 @@
 
 .App{
   background-color: #FAFAFA;
-  height: 100vh;
+  /* height: 100vh; */
 }
 .app__header{
   background-color: white;
@@ -34,7 +34,7 @@
 .app__posts{
   padding: 20px;
   display: flex;
-  justify-content: space-around;
+  justify-content: center;
 }
 
 .app__posts_right{
